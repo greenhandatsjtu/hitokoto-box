@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	"log"
-	"net/url"
-	"os"
-
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/go-github/v35/github"
 	"golang.org/x/oauth2"
+	"log"
+	"net/url"
+	"os"
+	"time"
 )
 
 const (
@@ -70,7 +71,13 @@ func updateGist(ctx context.Context, token string, gistId string, hitokoto *Resp
 
 	// set gist content to new hitokoto
 	for name, f := range gist.Files {
-		content := hitokoto.Hitokoto + " ---" + hitokoto.From
+		loc, err := time.LoadLocation("Asia/Shanghai")
+		if err != nil {
+			return err
+		}
+		now := time.Now().In(loc).Format(time.RFC1123)
+		content := fmt.Sprintf("%s\n\t---%s\n\nupdate at %s", hitokoto.Hitokoto, hitokoto.From, now)
+		fmt.Println(content)
 		f.Content = &content
 		gist.Files[name] = f
 		break

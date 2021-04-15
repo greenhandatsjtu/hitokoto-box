@@ -1,15 +1,17 @@
-name: Go
+name: Update gist with random hitokoto
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
+  schedule:
+    - cron: "*/5 * * * *"
 jobs:
 
   build:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GIST_ID: 8c2cd8ea266a45c1aa9cb5f78d066b60
     steps:
     - uses: actions/checkout@v2
 
@@ -18,8 +20,8 @@ jobs:
       with:
         go-version: 1.15
 
-    - name: Build
-      run: go build -v ./...
+    - name: Check out
+      uses: actions/checkout@v2
 
-    - name: Test
-      run: go test -v ./...
+    - name: Update gist
+      run: go run .

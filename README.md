@@ -23,7 +23,7 @@
    - **GIST_ID:** The ID portion from your gist url: `https://gist.github.com/greenhandatsjtu/`**`8c2cd8ea266a45c1aa9cb5f78d066b60`**.
    - **CATEGORY**: Preferred Categories of hitokoto, you can find all available categories [here](https://developer.hitokoto.cn/sentence/#%E5%8F%A5%E5%AD%90%E7%B1%BB%E5%9E%8B-%E5%8F%82%E6%95%B0), default value is `abh`, which stands for anime, manga and film. Leave it blank if you want to get hitokoto of all categories.
 
-3. By default, hitokoto-box will fetch a new hitokoto **every 10 minutes**, you can change the frequency by setting [cron](https://github.com/greenhandatsjtu/hitokoto-box/blob/8e94d65a0193555978a20229f80a72155c4410d9/.github/workflows/update.yml#L7) in `.github/workflows/update.yml`
+3. By default, hitokoto-box will fetch a new hitokoto **every hour**, you can change the frequency by setting [cron](https://github.com/greenhandatsjtu/hitokoto-box/blob/8e94d65a0193555978a20229f80a72155c4410d9/.github/workflows/update.yml#L7) in `.github/workflows/update.yml`
 4. Go to the repo **Settings > Secrets**
 5. Click **New repository secret** and add the following repository secrets:
    - **GH_TOKEN:** The GitHub token generated above.

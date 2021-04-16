@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-resty/resty/v2"
-	"github.com/google/go-github/v35/github"
-	"golang.org/x/oauth2"
 	"log"
 	"net/url"
 	"os"
+	"strings"
 	"time"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/google/go-github/v35/github"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -24,10 +26,16 @@ type Response struct {
 }
 
 func main() {
-	ghToken := os.Getenv("GH_TOKEN")
-	gistId := os.Getenv("GIST_ID")
+	ghToken := strings.TrimSpace(os.Getenv("GH_TOKEN"))
+	gistId := strings.TrimSpace(os.Getenv("GIST_ID"))
+	category := strings.TrimSpace(os.Getenv("CATEGORY"))
+	categories := strings.Split(category, "")
 
-	hitokoto, err := getHitokoto()
+	if ghToken == "" {
+		log.Fatal("Please add GH_TOKEN environment.")
+	}
+
+	hitokoto, err := getHitokoto(categories)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,10 +46,18 @@ func main() {
 	}
 }
 
-func getHitokoto() (*Response, error) {
+func getHitokoto(categories []string) (*Response, error) {
 	client := resty.New()
+
+	// set query parameters
 	query := url.Values{}
-	query.Add("c", "a")
+	for _, v := range categories {
+		if c := strings.TrimSpace(v); c == "" {
+			continue
+		} else {
+			query.Add("c", c)
+		}
+	}
 	query.Add("encode", "json")
 	query.Add("charset", "utf-8")
 
@@ -69,19 +85,29 @@ func updateGist(ctx context.Context, token string, gistId string, hitokoto *Resp
 		return err
 	}
 
-	// set gist content to new hitokoto
-	for name, f := range gist.Files {
-		loc, err := time.LoadLocation("Asia/Shanghai")
-		if err != nil {
-			return err
-		}
-		now := time.Now().In(loc).Format(time.RFC1123)
-		content := fmt.Sprintf("%s\n\t---%s\n\nupdate at %s", hitokoto.Hitokoto, hitokoto.From, now)
-		fmt.Println(content)
-		f.Content = &content
-		gist.Files[name] = f
-		break
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		return err
 	}
+	now := time.Now().In(loc).Format(time.RFC1123)
+
+	var from string
+	if hitokoto.From == "" && hitokoto.FromWho == "" {
+		from = ""
+	} else if hitokoto.From != "" {
+		from = fmt.Sprintf("\n ---%s", hitokoto.From)
+	} else {
+		from = fmt.Sprintf("\n ---%s", hitokoto.FromWho)
+	}
+
+	content := fmt.Sprintf("%s%s\n\nUpdated at %s", hitokoto.Hitokoto, from, now)
+
+	// set gist content to new hitokoto
+	fileName := "🌧Hitokoto"
+	f := gist.Files[github.GistFilename(fileName)]
+	f.Content = &content
+	gist.Files[github.GistFilename(fileName)] = f
+
 	if _, _, err := client.Gists.Edit(ctx, gistId, gist); err != nil {
 		return err
 	}

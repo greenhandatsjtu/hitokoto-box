@@ -1,4 +1,4 @@
-name: Update gist with random hitokoto
+name: Update gist with new hitokoto
 
 on:
   push:
@@ -12,6 +12,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
       GIST_ID: 8c2cd8ea266a45c1aa9cb5f78d066b60
+      CATEGORY: abh
     steps:
     - uses: actions/checkout@v2
 

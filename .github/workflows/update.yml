@@ -12,7 +12,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
       GIST_ID: 8c2cd8ea266a45c1aa9cb5f78d066b60
-      CATEGORY: abh
+      CATEGORY: a
     steps:
     - uses: actions/checkout@v2
 
